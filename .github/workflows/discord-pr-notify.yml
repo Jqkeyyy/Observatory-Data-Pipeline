@@ -1,0 +1,63 @@
+# Posts to Discord when a pull request is opened or gets new commits.
+# Save as: .github/workflows/discord-pr-notify.yml
+# Requires a repo secret named DISCORD_WEBHOOK_URL.
+
+name: Discord PR notification
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+
+jobs:
+  notify:
+    # Skip draft PRs; they notify once marked "Ready for review"
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          ACTION: ${{ github.event.action }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_HEAD: ${{ github.event.pull_request.head.ref }}
+          PR_BASE: ${{ github.event.pull_request.base.ref }}
+          PUSHER: ${{ github.actor }}
+        run: |
+          # New PRs ping @everyone; new commits on an existing PR post quietly
+          if [ "$ACTION" = "synchronize" ]; then
+            CONTENT="New commits pushed to PR #${PR_NUMBER} by ${PUSHER}"
+            MENTIONS='[]'
+            COLOR=16763904   # yellow
+          else
+            CONTENT="@everyone New pull request ready for review"
+            MENTIONS='["everyone"]'
+            COLOR=5793266    # blurple
+          fi
+
+          # Build JSON with jq so PR titles can't break the payload
+          payload=$(jq -n \
+            --arg content "$CONTENT" \
+            --argjson mentions "$MENTIONS" \
+            --argjson color "$COLOR" \
+            --arg title "#${PR_NUMBER}: ${PR_TITLE}" \
+            --arg url "$PR_URL" \
+            --arg author "$PR_AUTHOR" \
+            --arg branches "\`${PR_HEAD}\` → \`${PR_BASE}\`" \
+            '{
+              content: $content,
+              allowed_mentions: { parse: $mentions },
+              embeds: [{
+                title: ($title | .[0:250]),
+                url: $url,
+                color: $color,
+                fields: [
+                  { name: "Author", value: $author, inline: true },
+                  { name: "Branch", value: $branches, inline: true }
+                ]
+              }]
+            }')
+
+          curl -sSf -H "Content-Type: application/json" -d "$payload" "$DISCORD_WEBHOOK_URL"
