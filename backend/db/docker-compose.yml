@@ -1,0 +1,25 @@
+# Local PostgreSQL for development.
+# Start:  docker compose up -d db
+# Stop:   docker compose down        (data is kept)
+# Wipe:   docker compose down -v     (deletes all data)
+services:
+  db:
+    image: postgres:17
+    container_name: observatory-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-observatory}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-observatory}
+      POSTGRES_DB: ${POSTGRES_DB:-observatory}
+    ports:
+      - "5433:5432"   # host 5433 so it doesn't clash with a local Postgres on 5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
