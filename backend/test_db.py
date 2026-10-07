@@ -1,5 +1,6 @@
 """Quick database check. Run from backend\\:  python test_db.py
 Nothing is kept: everything is rolled back at the end."""
+##update this more for later just a start
 from datetime import date, datetime, timezone
 
 from sqlalchemy import select
