@@ -1,0 +1,44 @@
+name: Discord notifications
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+  push:
+    branches: [main]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Discord about a new PR
+        if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          number=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
+          title=$(jq -r '.pull_request.title' "$GITHUB_EVENT_PATH")
+          author=$(jq -r '.pull_request.user.login' "$GITHUB_EVENT_PATH")
+          head=$(jq -r '.pull_request.head.ref' "$GITHUB_EVENT_PATH")
+          base=$(jq -r '.pull_request.base.ref' "$GITHUB_EVENT_PATH")
+          url=$(jq -r '.pull_request.html_url' "$GITHUB_EVENT_PATH")
+
+          msg=$(printf '@everyone 🔍 **PR #%s needs review:** %s\nOpened by %s · `%s` → `%s`\n%s' \
+            "$number" "$title" "$author" "$head" "$base" "$url")
+
+          jq -n --arg content "$msg" '{content: $content, allowed_mentions: {parse: ["everyone"]}}' \
+            | curl -sSf -H "Content-Type: application/json" -d @- "$WEBHOOK"
+
+      - name: Ping Discord that main was updated
+        if: github.event_name == 'push' && github.event.deleted == false
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          summary=$(jq -r '.head_commit.message | split("\n")[0]' "$GITHUB_EVENT_PATH")
+          pusher=$(jq -r '.pusher.name' "$GITHUB_EVENT_PATH")
+          compare=$(jq -r '.compare' "$GITHUB_EVENT_PATH")
+
+          msg=$(printf '@everyone ✅ **main was updated**, run `git pull`\n%s (by %s)\n%s' \
+            "$summary" "$pusher" "$compare")
+
+          jq -n --arg content "$msg" '{content: $content, allowed_mentions: {parse: ["everyone"]}}' \
+            | curl -sSf -H "Content-Type: application/json" -d @- "$WEBHOOK"
