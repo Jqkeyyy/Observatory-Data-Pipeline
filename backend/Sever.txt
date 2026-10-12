@@ -1,6 +1,7 @@
+code I used to test Thundercloud and Postman
 {
   "id": 1,
-  "title": "Updated test post",
-  "body": "This is a simple PUT request.",
+  "title": "test post",
+  "body": "This is a PUT request.",
   "userId": 1
 }

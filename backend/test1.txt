@@ -1,0 +1,5 @@
+different ways to store a picture 
+testing zip, rar, 7z
+
+when testing these 3 files without doing specific modifications to the compression the zip file was the most effective however when adjesting the compression file manually 
+I was able to get 7z file storage 
