@@ -1,0 +1,15 @@
+Black
+#000000
+Complete absorption of light radiates unmatched sophistication and strength, symbolizing authority, depth and formality.
+~Prussian Blue
+#14213d
+Inky, profound blue filled with gravitas and mystery, conjures historical intrigue and academic tradition.
+~Orange
+#fca311
+Pure vibrant spectrum orange energizes the senses, signaling warmth, movement, and enthusiastic positivity.
+~Alabaster Grey
+#e5e5e5
+Pale, misty grey that whispers of modern elegance and refined calm, imparting balance and understated chic.
+White
+#ffffff
+Brilliant and absolute, reflecting endless possibility, new beginnings, and the crispness of a blank page.
