@@ -1,0 +1,29 @@
+Research: pick the best database for the pipeline
+
+Goal
+Compare database options against what the pipeline needs and recommend one to the team.
+
+Background
+- I know PostgreSQL best, then MySQL, but I'm open to other options if they fit better
+
+What we need from the database
+- Store metadata for each image (capture time, target, exposure, filter, file paths, blah blah) the image files stay on disk
+- Run on a Raspberry Pi for now or laptop w/ an ubuntu 
+- Work with Pythons
+- Hooks up to JS 
+- Possibly move to UWW servers later (depends on IT restrictions from Caleb's ticket)
+- Best compression 
+
+Options to compare
+- PostgreSQL
+- MySQL
+- SQLite
+- Others if they come up
+
+Compare on
+- Setup and upkeep on the Pi
+- Fit for our data and queries (filtering and sorting by date and target, storing FITS headers as JSON)
+- Team familiarity
+- Ease of moving to UWW servers later (probably not gonna happen but I'll keep in mind)
+- What ITS allows
+
