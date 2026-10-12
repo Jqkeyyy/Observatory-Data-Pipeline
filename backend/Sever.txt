@@ -1,1 +1,7 @@
+{
+  "id": 1,
+  "title": "Updated test post",
+  "body": "This is a simple PUT request.",
+  "userId": 1
+}
 
