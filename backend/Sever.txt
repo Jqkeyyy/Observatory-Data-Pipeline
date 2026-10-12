@@ -4,4 +4,3 @@
   "body": "This is a simple PUT request.",
   "userId": 1
 }
-
