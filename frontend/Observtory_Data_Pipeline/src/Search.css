@@ -28,7 +28,7 @@
   margin: 0;
   padding: 12px;
   list-style: none;
-  border: 1px solid var(--border);
+  border: 3px solid var(--border);
   border-radius: 8px;
   box-sizing: border-box;
   display: grid;

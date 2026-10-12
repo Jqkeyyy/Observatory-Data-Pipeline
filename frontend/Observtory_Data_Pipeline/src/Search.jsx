@@ -22,8 +22,11 @@ function Search() {
     <>
       <div className="controls">
         <input type="search" placeholder="Search" />
-        <button type="button">Date</button>
-        <button type="button">Time</button>
+        <input type="date" id="startDate"/>
+        <input type="date" id="endDate"/>
+        <input type="time" id="timeframeStart"/>
+        <input type="time" id="timeframeEnd"/>
+        <button type="button">Search</button>
       </div>
       <ul className="results">
         {images.map(({ name, url }) => (
