@@ -8,16 +8,43 @@
 }
 
 .controls {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: -16px -16px 0;
+  padding: 8px 16px;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
+  background: var(--code-bg);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow);
 
-  input {
+  input,
+  button {
     font: inherit;
-    padding: 8px 12px;
-    width: min(400px, 100%);
+    font-size: 15px;
+    height: 36px;
+    padding: 0 12px;
     box-sizing: border-box;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text-h);
+  }
+
+  input[type='search'] {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  button {
+    cursor: pointer;
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #14213d;
+    font-weight: 600;
   }
 }
 
