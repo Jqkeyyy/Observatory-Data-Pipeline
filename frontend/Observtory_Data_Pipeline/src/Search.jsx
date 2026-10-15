@@ -1,17 +1,20 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './Search.css'
-
-// Every image in /images pulls
-const images = Object.entries(
-  import.meta.glob('/images/*.{jpg,jpeg,png,gif,webp,svg}', {
-    eager: true,
-    import: 'default',
-  }),
-).map(([path, url]) => ({ name: path.split('/').pop(), url }))
 
 function Search() {
   const dialog = useRef(null)
   const [big, setBig] = useState(null)
+  const [images, setImages] = useState([])
+
+  // Get every image from the database (newest first)
+  useEffect(() => {
+    fetch('/api/images')
+      .then((res) => res.json())
+      .then((data) =>
+        setImages(data.map((img) => ({ name: `${img.target} - ${img.night_of}`, url: img.url })))
+      )
+      .catch((err) => console.error('Could not load images:', err))
+  }, [])
 
   function open(image) {
     setBig(image)
@@ -30,7 +33,7 @@ function Search() {
       </div>
       <ul className="results">
         {images.map(({ name, url }) => (
-          <li key={name}>
+          <li key={url}>
             <button type="button" onClick={() => open({ name, url })}>
               <img src={url} alt={name} />
             </button>
