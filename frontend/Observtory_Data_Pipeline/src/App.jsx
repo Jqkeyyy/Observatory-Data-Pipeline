@@ -11,9 +11,10 @@ function App() {
           <img src={heroImg} className="base" width="900" height="402" alt="" />
         </div>
         <div>
-          <h1>Get started</h1>
+          <h1>Whitewater Observatory Archive</h1>
           <p>
-            Database for University of Whitewater-Wisconsin Observatory
+            Browse astronomical observations captured by the
+            University of Wisconsin-Whitewater Observatory.
           </p>
         </div>
         <button
@@ -21,12 +22,16 @@ function App() {
           className="search"
           onClick={() => { location.href = '/search.html' }} // Opens search bar
         >
-          Search
+          Explore Archive 
         </button>
       </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+      <section className="carousel-section">
+        <h2>Recent Observations</h2>
+
+        <div className="carousel">
+        </div>
+      </section>
     </>
   )
 }
