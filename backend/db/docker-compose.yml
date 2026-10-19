@@ -15,6 +15,7 @@ services:
       - "5433:5432"   # host 5433 so it doesn't clash with a local Postgres on 5432
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ../sample_data/images:/var/lib/postgresql/sample_images
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
