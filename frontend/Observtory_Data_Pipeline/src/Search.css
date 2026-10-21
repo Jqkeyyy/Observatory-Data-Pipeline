@@ -96,6 +96,16 @@ dialog {
     max-height: 90vh;
   }
 
+  .download {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    color: #fff;
+    font-size: 15px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
   &::backdrop {
     background: rgba(0, 0, 0, 0.8);
   }

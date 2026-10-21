@@ -41,7 +41,14 @@ function Search() {
         ))}
       </ul>
       <dialog ref={dialog} onClick={() => dialog.current.close()}>
-        {big && <img src={big.url} alt={big.name} />}
+        {big && (
+          <>
+            <a className="download" href={big.url} download onClick={(e) => e.stopPropagation()}>
+              Download
+            </a>
+            <img src={big.url} alt={big.name} />
+          </>
+        )}
       </dialog>
     </>
   )
