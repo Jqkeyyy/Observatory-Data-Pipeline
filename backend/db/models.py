@@ -1,7 +1,8 @@
 from datetime import date, datetime
 
-from sqlalchemy import BigInteger, ForeignKey, Index, func
+from sqlalchemy import BigInteger, ForeignKey, Index, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from db.base import Base
 
@@ -30,8 +31,10 @@ class Target(Base):
 
 class Image(Base):
     __tablename__ = "image"
-    __table_args__ = (Index("ix_image_metadata_gin", "metadata", postgresql_using="gin"),)
-
+    __table_args__ = (
+        Index("ix_image_metadata_gin", "metadata", postgresql_using="gin"),
+        Index("ix_image_tags_gin", "tags", postgresql_using="gin"),
+    )
     id: Mapped[int] = mapped_column(primary_key=True)
     session_id: Mapped[int] = mapped_column(ForeignKey("observing_session.id"), index=True)
     target_id: Mapped[int | None] = mapped_column(ForeignKey("target.id", ondelete="SET NULL"), index=True)
@@ -43,7 +46,8 @@ class Image(Base):
     height: Mapped[int | None]
     file_size_bytes: Mapped[int | None] = mapped_column(BigInteger)
     sharpness: Mapped[float | None] = mapped_column(index=True)
-    meta: Mapped[dict | None] = mapped_column("metadata")  # "metadata" is reserved in SQLAlchemy
+    meta: Mapped[dict | None] = mapped_column("metadata") 
+    tags: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list, server_default="{}")
     ingested_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
     session: Mapped[ObservingSession] = relationship(back_populates="images")
