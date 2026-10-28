@@ -1,0 +1,23 @@
+.login {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 260px;
+
+  input {
+    font: inherit;
+    font-size: 15px;
+    height: 36px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text-h);
+  }
+
+  a {
+    font-size: 14px;
+    color: var(--accent);
+  }
+}
