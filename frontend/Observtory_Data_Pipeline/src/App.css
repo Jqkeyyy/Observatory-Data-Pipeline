@@ -118,3 +118,21 @@
   overflow-x: auto;
   padding: 20px;
 }
+
+.carousel-move{
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  display: flex;
+  animation: slide 60s infinite linear;
+}
+
+.carousel img{
+  width: 200px;
+  height: 200px;
+}
+
+@keyframes slide{
+  from{translate: 0;}
+  to{translate: -100%}
+}
