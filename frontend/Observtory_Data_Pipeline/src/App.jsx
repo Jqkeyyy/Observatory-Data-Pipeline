@@ -30,7 +30,26 @@ function App() {
         <h2>Recent Observations</h2>
 
         <div className="carousel">
-        </div>
+           <div className="carousel-move"> {/*This is just a placeholder for now */}
+         <img src="/images/SuperMarioGalaxy.jpg" alt="sample 1"></img>
+         <img src="/images/Stars example.jpg" alt="sample 2"></img>
+         <img src="/images/SuperMarioGalaxy.jpg" alt="sample 3"></img>
+         <img src="/images/Stars example.jpg" alt="sample 4"></img>
+         <img src="/images/SuperMarioGalaxy.jpg" alt="sample 5"></img>
+         <img src="/images/Stars example.jpg" alt="sample 6"></img>
+         <img src="/images/SuperMarioGalaxy.jpg" alt="sample 7"></img>
+         </div>
+         <div aria-hidden className="carousel-move">
+         <img src="/images/SuperMarioGalaxy.jpg" alt="sample 1"></img>
+         <img src="/images/Stars example.jpg" alt="sample 2"></img>
+         <img src="/images/SuperMarioGalaxy.jpg" alt="sample 3"></img>
+         <img src="/images/Stars example.jpg" alt="sample 4"></img>
+         <img src="/images/SuperMarioGalaxy.jpg" alt="sample 5"></img>
+         <img src="/images/Stars example.jpg" alt="sample 6"></img>
+         <img src="/images/SuperMarioGalaxy.jpg" alt="sample 7"></img>
+         </div>
+        
+       </div>
       </section>
     </>
   )
