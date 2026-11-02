@@ -107,3 +107,28 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+.nav-logo {
+  font-size: 1.4rem;
+  color: white;
+}
+
+.nav-links {
+  display: flex;
+  gap: 30px;
+}
+
+.nav-links a {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.25s;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: left;
+  padding: 20px 40px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
