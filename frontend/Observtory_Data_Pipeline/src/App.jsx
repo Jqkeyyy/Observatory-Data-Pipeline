@@ -1,11 +1,26 @@
 
 import heroImg from './assets/logoMain.jpg'
 import './App.css'
-import Login from './Login.jsx'
+{/*import Login from './Login.jsx'*/}
 function App() {
 
   return (
     <>
+      {/*Navigation bar that will sit at the top of every page to navigate from page to page. */}
+      <nav className="navbar">
+        <div className="nav-logo">
+          Whitewater Observatory
+        </div>
+
+        <div className="nav-links">
+          <a href="/">Home</a>
+          <a href="/search.html">Search</a>
+          <a href="/signin.html">Sign In</a>
+          <a href="/signup.html">Sign Up</a>
+        </div>
+      </nav>
+
+      {/*Center of landing page. Introduces the website and purpose */}
       <section id="center">
         <div className="hero">
           <img src={heroImg} className="base" width="900" height="402" alt="" />
@@ -24,7 +39,8 @@ function App() {
         >
           Explore Archive 
         </button>
-        <Login />
+        {/* login moving to separate login and signup page
+        <Login />*/}
       </section>
 
       <section className="carousel-section">

@@ -23,6 +23,21 @@ function Search() {
 // Buttons and image open
   return (
     <>
+
+      {/*Navigation bar that will sit at the top of every page to navigate from page to page. */}
+      <nav className="navbar">
+        <div className="nav-logo">
+          Whitewater Observatory
+        </div>
+
+        <div className="nav-links">
+          <a href="/">Home</a>
+          <a href="/search.html">Search</a>
+          <a href="/signin.html">Sign In</a>
+          <a href="/signup.html">Sign Up</a>
+        </div>
+      </nav>
+      
       <div className="controls">
         <input type="search" placeholder="Search" />
         <input type="date" id="startDate"/>
