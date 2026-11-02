@@ -1,7 +1,7 @@
 
 import heroImg from './assets/logoMain.jpg'
 import './App.css'
-
+import Login from './Login.jsx'
 function App() {
 
   return (
@@ -24,6 +24,7 @@ function App() {
         >
           Explore Archive 
         </button>
+        <Login />
       </section>
 
       <section className="carousel-section">
