@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     rolldownOptions: {
-      input: ['index.html', 'search.html'],
+      input: ['index.html', 'search.html', 'admin.html'],
     },
   },
   server: {

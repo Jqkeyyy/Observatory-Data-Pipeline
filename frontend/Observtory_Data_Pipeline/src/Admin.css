@@ -1,0 +1,105 @@
+#admin {
+  max-width: 1126px;
+  margin: 0 auto;
+  padding: 0 16px 32px;
+  box-sizing: border-box;
+}
+
+.admin-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 0 -16px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--code-bg);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow);
+
+  h1 {
+    font-size: 24px;
+    margin: 0;
+  }
+
+  a {
+    color: var(--accent);
+  }
+}
+
+.admin-section {
+  margin-top: 24px;
+}
+
+#admin input,
+#admin select,
+#admin button {
+  font: inherit;
+  font-size: 15px;
+  height: 36px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+#admin button {
+  cursor: pointer;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #14213d;
+  font-weight: 600;
+
+  &.danger {
+    background: #c0392b;
+    border-color: #c0392b;
+    color: #fff;
+  }
+}
+
+.settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+  }
+
+  .field {
+    display: flex;
+    gap: 8px;
+  }
+
+  input {
+    width: 100px;
+  }
+}
+
+.users {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+
+  th,
+  td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    color: var(--text-h);
+  }
+}
+
+.row-actions {
+  text-align: right;
+}

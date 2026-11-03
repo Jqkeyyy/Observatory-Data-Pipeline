@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import './Search.css'
 
+// Don't touch until we get auth working here, if you want to see it as an admin add ?admin after the search.html, admin panel is found at admin.html
+const isAdmin = new URLSearchParams(location.search).has('admin')
+
 function Search() {
   const dialog = useRef(null)
   const [big, setBig] = useState(null)
@@ -62,6 +65,14 @@ function Search() {
               Download
             </a>
             <img src={big.url} alt={big.name} />
+            {isAdmin && (
+              // no handlers
+              <div className="admin-tools" onClick={(e) => e.stopPropagation()}>
+                <input type="text" placeholder="Add tags (comma separated)" />
+                <button type="button">Add tags</button>
+                <button type="button" className="danger">Delete</button>
+              </div>
+            )}
           </>
         )}
       </dialog>
