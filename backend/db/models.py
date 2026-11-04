@@ -52,3 +52,30 @@ class Image(Base):
 
     session: Mapped[ObservingSession] = relationship(back_populates="images")
     target: Mapped[Target | None] = relationship(back_populates="images")
+
+class SessionJob(Base):
+    __tablename__ = "session_job"
+    __table_args__ = (
+        Index("ix_session_job_pending", "device_id", "created_at", postgresql_where=(func.lower("status") == "pending")),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    device_id: Mapped[str] = mapped_column(index=True)
+    duration_seconds: Mapped[int]
+    interval_seconds: Mapped[int]
+    status: Mapped[str] = mapped_column(default="pending", server_default="pending", index=True)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    started_at: Mapped[datetime | None]
+    completed_at: Mapped[datetime | None]
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "device_id": self.device_id,
+            "duration_seconds": self.duration_seconds,
+            "interval_seconds": self.interval_seconds,
+            "status": self.status,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "started_at": self.started_at.isoformat() if self.started_at else None,
+            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+        }
