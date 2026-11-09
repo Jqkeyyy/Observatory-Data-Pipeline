@@ -42,6 +42,13 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
 
+      - name: Create database tables
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/observatory_test
+        run: |
+          python -m alembic upgrade head
+          
       - name: Run integration tests
         working-directory: backend
         env:
