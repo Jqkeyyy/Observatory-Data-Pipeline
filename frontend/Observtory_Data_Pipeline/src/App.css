@@ -28,12 +28,11 @@
   }
 
   .base {
-    width: 400px;
-    max-width: 100%;
-    height: auto;
-    position: relative;
-    z-index: 0;
-  }
+  width: min(35vw, 100%);
+  height: auto;
+  position: relative;
+  z-index: 0;
+}
 
   .framework,
   .vite {
@@ -65,7 +64,7 @@
 
 .nav-links {
   display: flex;
-  gap: 30px;
+  gap: 2vw;
 }
 
 .nav-links a {
@@ -79,14 +78,31 @@
   display: flex;
   justify-content: space-between;
   align-items: left;
-  padding: 20px 40px;
+  padding:  2vh 4vw;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+#Home:hover {
+  transform: scale(1.1);
+}
+
+#Search:hover {
+  transform: scale(1.1);
+}
+
+#signIn:hover {
+  transform: scale(1.1);
+}
+
+#signUp:hover {
+  transform: scale(1.1);
 }
 
 
 #center {
   display: flex;
   flex-direction: column;
+  place-content: center;
   /*gap: 25px;
   place-content: center;
   place-items: center;
@@ -102,6 +118,25 @@
   }
 }
 
+
+#searchButton 
+{
+  font-size: 1.25rem;
+  padding: .75rem 1.75rem;
+  border-radius: 999px;
+  border: none;
+  background-color: var(--accent);
+  color: black;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+#searchButton:hover {
+  transform: scale(1.05);
+}
+
+
 #spacer {
   height: 88px;
   /*border-top: 1px solid var(--border);*/
@@ -109,6 +144,7 @@
     height: 48px;
   }
 }
+
 
 /* previous work. commented out for now
  .ticks {

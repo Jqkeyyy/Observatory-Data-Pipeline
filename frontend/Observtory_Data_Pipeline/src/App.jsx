@@ -13,10 +13,10 @@ function App() {
         </div>
 
         <div className="nav-links">
-          <a href="/">Home</a>
-          <a href="/search.html">Search</a>
-          <a href="/signin.html">Sign In</a>
-          <a href="/signup.html">Sign Up</a>
+          <a id="Home" href="/">Home</a>
+          <a id="Search" href="/search.html">Search</a>
+          <a id="signIn" href="/signin.html">Sign In</a>
+          <a id="signUp" href="/signup.html">Sign Up</a>
         </div>
       </nav>
 
@@ -32,7 +32,7 @@ function App() {
             University of Wisconsin-Whitewater Observatory.
           </p>
         </div>
-        <button
+        <button id="searchButton"
           type="button"
           className="search"
           onClick={() => { location.href = '/search.html' }} // Opens search bar
