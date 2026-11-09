@@ -1,4 +1,5 @@
-.counter {
+.counter 
+{
   font-size: 16px;
   padding: 5px 10px;
   border-radius: 5px;
@@ -8,39 +9,44 @@
   transition: border-color 0.3s;
   margin-bottom: 24px;
 
-  &:hover {
+  &:hover 
+  {
     border-color: var(--accent-border);
   }
-  &:focus-visible {
+  &:focus-visible 
+  {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
 }
 
-.hero {
+.hero 
+{
   position: relative;
-
   .base,
   .framework,
-  .vite {
+  .vite 
+  {
     inset-inline: 0;
     margin: 0 auto;
   }
 
-  .base {
-    width: 400px;
-    max-width: 100%;
-    height: auto;
-    position: relative;
-    z-index: 0;
-  }
+  .base 
+  {
+  width: min(35vw, 100%);
+  height: auto;
+  position: relative;
+  z-index: 0;
+}
 
   .framework,
-  .vite {
+  .vite 
+  {
     position: absolute;
   }
 
-  .framework {
+  .framework 
+  {
     z-index: 1;
     top: 34px;
     height: 28px;
@@ -48,7 +54,8 @@
       scale(1.4);
   }
 
-  .vite {
+  .vite 
+  {
     z-index: 0;
     top: 107px;
     height: 26px;
@@ -58,35 +65,61 @@
   }
 }
 
-.nav-logo {
+.nav-logo 
+{
   font-size: 1.4rem;
   color: white;
 }
 
-.nav-links {
+.nav-links 
+{
   display: flex;
-  gap: 30px;
+  gap: 2vw;
 }
 
-.nav-links a {
+.nav-links a 
+{
   color: var(--text);
   text-decoration: none;
   font-weight: 500;
   transition: 0.25s;
 }
 
-.navbar {
+.navbar 
+{
   display: flex;
   justify-content: space-between;
   align-items: left;
-  padding: 20px 40px;
+  padding:  2vh 4vw;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+#Home:hover 
+{
+  transform: scale(1.1);
+}
 
-#center {
+#Search:hover 
+{
+  transform: scale(1.1);
+}
+
+#signIn:hover 
+{
+  transform: scale(1.1);
+}
+
+#signUp:hover 
+{
+  transform: scale(1.1);
+}
+
+
+#center 
+{
   display: flex;
   flex-direction: column;
+  place-content: center;
   /*gap: 25px;
   place-content: center;
   place-items: center;
@@ -96,56 +129,59 @@
   gap:20px;
   padding-top: 50px;
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1024px) 
+  {
     padding: 32px 20px 24px;
     gap: 18px;
   }
 }
 
-#spacer {
+
+#searchButton 
+{
+  font-size: 1.25rem;
+  padding: .75rem 1.75rem;
+  border-radius: 999px;
+  border: none;
+  background-color: var(--accent);
+  color: black;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+#searchButton:hover 
+{
+  transform: scale(1.05);
+}
+
+
+#spacer 
+{
   height: 88px;
   /*border-top: 1px solid var(--border);*/
-  @media (max-width: 1024px) {
+  @media (max-width: 1024px) 
+  {
     height: 48px;
   }
 }
 
-/* previous work. commented out for now
- .ticks {
-  position: relative;
-  width: 100%;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
-
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
-    
-} */
-.carousel-section{
+.carousel-section
+{
   width:100%;
   margin-top: 60px;
   text-align: center;
 }
-.carousel{
+.carousel
+{
   display: flex;
   gap:20px;
   overflow-x: auto;
   padding: 20px;
 }
 
-.carousel-move{
+.carousel-move
+{
   display: flex;
   gap: 20px;
   align-items: center;
@@ -153,12 +189,14 @@
   animation: slide 60s infinite linear;
 }
 
-.carousel img{
+.carousel img
+{
   width: 200px;
   height: 200px;
 }
 
-@keyframes slide{
+@keyframes slide
+{
   from{translate: 0;}
   to{translate: -100%}
 }
