@@ -1,4 +1,8 @@
+import { useState } from 'react'
 import './Admin.css'
+
+// Fastest allowed is 2 pictures a minute
+const maxPictures = { minute: 2, hour: 120 }
 
 // Remove once hooked up, just for show
 const users = [
@@ -9,6 +13,9 @@ const users = [
 
 // no handlers
 function Admin() {
+  const [start, setStart] = useState('')
+  const [pictureUnit, setPictureUnit] = useState('minute')
+
   return (
     <>
       <header className="admin-bar">
@@ -18,30 +25,27 @@ function Admin() {
 
       <section className="admin-section">
         <h2>Session settings</h2>
-        <div className="settings">
+        <form className="settings" onSubmit={(e) => e.preventDefault()}>
           <label>
-            Total time
-            <span className="field">
-              <input type="number" min="0" defaultValue="2" />
-              <select defaultValue="hours">
-                <option value="hours">hours</option>
-                <option value="minutes">minutes</option>
-              </select>
-            </span>
+            Start
+            <input type="datetime-local" required onChange={(e) => setStart(e.target.value)} />
+          </label>
+          <label>
+            End
+            <input type="datetime-local" required min={start} />
           </label>
           <label>
             Pictures
             <span className="field">
-              <input type="number" min="0" defaultValue="1" />
-              <select defaultValue="minute">
+              <input type="number" min="0" max={maxPictures[pictureUnit]} required defaultValue="1" />
+              <select value={pictureUnit} onChange={(e) => setPictureUnit(e.target.value)}>
                 <option value="hour">per hour</option>
                 <option value="minute">per minute</option>
-                <option value="second">per second</option>
               </select>
             </span>
           </label>
-          <button type="button">Save settings</button>
-        </div>
+          <button type="submit">Save settings</button>
+        </form>
       </section>
 
       <section className="admin-section">

@@ -81,6 +81,10 @@
   input {
     width: 100px;
   }
+
+  input[type='datetime-local'] {
+    width: 220px;
+  }
 }
 
 .users {
