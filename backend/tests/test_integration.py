@@ -23,7 +23,7 @@ def test_image():
 
     unique_id = uuid4().hex
 
-    # Give each test a unique observing date and file path.
+    
     night = date(2099, 1, 1) + timedelta(days=uuid4().int % 36500)
     file_path = f"images/pytest_{unique_id}.jpg"
 
