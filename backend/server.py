@@ -3,28 +3,35 @@
 Run from backend\\:  python server.py   ->  http://127.0.0.1:5000
 """
 
-from datetime import date
+import io
+import zipfile
 from pathlib import Path
 
-from flask import Flask, abort, jsonify, request, send_from_directory
+from flask import Flask, abort, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from sqlalchemy import func, select, text
+from routes.sessions import sessions_bp
 
-from db.capture import SessionConflict, book_session, now, parse_time
-from db.models import CaptureSession, Image, ObservingSession, Target
+from db.models import Image, ObservingSession, Target
 from db.session import SessionLocal
 
-DATA_DIR = Path(__file__).resolve().parent / "data"  # where image files live
+
+DATA_DIR = Path(__file__).resolve().parent / "data"
 EDITABLE_IMAGE_FIELDS = {"target", "exposure_s", "sharpness", "tags"}
+SESSIONS_DIR = DATA_DIR / "sessions"
+THUMBNAILS_DIR = DATA_DIR / "thumbnails"
+SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
+THUMBNAILS_DIR.mkdir(parents=True, exist_ok=True)
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173"])  # Vite dev server
-
+CORS(app, origins=["http://localhost:5173"])
+app.register_blueprint(sessions_bp)
 
 def image_json(img):
     return {
         "id": img.id,
-        "url": f"/api/images/{img.id}/file",  # use this as <img src>
+        "url": f"/api/images/{img.id}/thumbnail",
+        "original_url": f"/api/images/{img.id}/original",
         "target": img.target.name if img.target else None,
         "night_of": img.session.night_of.isoformat(),
         "captured_at": img.captured_at.isoformat(),
@@ -36,15 +43,6 @@ def image_json(img):
     }
 
 
-def capture_session_json(s):
-    return {
-        "id": s.id,
-        "start_at": s.start_at.isoformat(),
-        "end_at": s.end_at.isoformat(),
-        "created_by": s.created_by_user.name if s.created_by_user else None,
-    }
-
-
 @app.get("/api/health")
 def health():
     """Quick check that Flask is up and can reach Postgres."""
@@ -53,24 +51,68 @@ def health():
     return jsonify({"status": "ok"})
 
 
-@app.get("/api/images")
-def list_images():
-    """All images, newest first. Optional: ?target=Moon  ?night=2026-10-12  ?limit=50"""
-    query = select(Image).join(Image.session).order_by(Image.captured_at.desc())
-    if target := request.args.get("target"):
-        query = query.join(Image.target).where(Target.name.ilike(target))
-    if night := request.args.get("night"):
-        try:
-            query = query.where(ObservingSession.night_of == date.fromisoformat(night))
-        except ValueError:
-            return jsonify({"error": "night must look like 2026-10-12"}), 400
-    if tag := request.args.get("tag"):
-        query = query.where(Image.tags.contains([tag.strip().lower()]))
-    
-    query = query.limit(min(request.args.get("limit", 100, type=int), 500))
-
+@app.get("/api/images/thumbnails")
+def list_thumbnails():
+    """Lists all images from the database with both thumbnail and original URLs."""
     with SessionLocal() as db:
-        return jsonify([image_json(img) for img in db.scalars(query)])
+        images = db.scalars(select(Image).order_by(Image.captured_at.desc())).all()
+        results = []
+        for img in images:
+            if not img.preview_path:
+                continue
+            results.append({
+                "id": img.id,
+                "filename": img.preview_path,
+                "url": f"/api/images/{img.id}/thumbnail",
+                "original_url": f"/api/images/{img.id}/original",
+                "target": img.target.name if img.target else "Unknown",
+                "night_of": img.session.night_of.isoformat() if img.session else None
+            })
+        return jsonify(results), 200
+
+@app.get("/api/images/<int:image_id>/thumbnail")
+def get_image_thumbnail(image_id):
+    """Serves the lightweight 960x540 web preview for grid cards."""
+    with SessionLocal() as db:
+        img = db.get(Image, image_id) or abort(404)
+        if not img.preview_path:
+            abort(404)
+            
+        filename = Path(img.preview_path).name
+        return send_from_directory(THUMBNAILS_DIR, filename)
+
+@app.get("/api/thumbnails/<path:filename>")
+def serve_thumbnail(filename):
+    """Serves individual web thumbnail files directly from THUMBNAILS_DIR."""
+    if not THUMBNAILS_DIR.exists():
+        abort(404)
+    return send_from_directory(THUMBNAILS_DIR, filename)
+
+
+@app.get("/api/images/<int:image_id>/original")
+def get_image_original(image_id):
+    """Extracts and streams the full 4K frame from the session zip on-demand when user full-screens."""
+    with SessionLocal() as db:
+        img = db.get(Image, image_id) or abort(404)
+        
+        zip_path = SESSIONS_DIR / f"session_{img.session_id}.zip"
+        if not zip_path.exists():
+            abort(404)
+            
+        inner_filename = Path(img.file_path).name
+        
+        try:
+            with zipfile.ZipFile(zip_path, 'r') as zf:
+                if inner_filename not in zf.namelist():
+                    abort(404)
+                file_data = zf.read(inner_filename)
+                return send_file(
+                    io.BytesIO(file_data),
+                    mimetype="image/jpeg",
+                    download_name=inner_filename
+                )
+        except Exception:
+            abort(500)
 
 
 @app.get("/api/images/<int:image_id>")
@@ -78,7 +120,6 @@ def get_image(image_id):
     with SessionLocal() as db:
         img = db.get(Image, image_id) or abort(404)
         return jsonify(image_json(img))
-
 
 @app.get("/api/images/<int:image_id>/file")
 def get_image_file(image_id):
@@ -148,44 +189,6 @@ def list_sessions():
     )
     with SessionLocal() as db:
         return jsonify([{"night_of": n.isoformat(), "image_count": c} for n, c in db.execute(query)])
-
-
-@app.get("/api/capture-sessions")
-def list_capture_sessions():
-    """The session happening now (or null) and the ones booked after it, soonest first."""
-    query = select(CaptureSession).where(CaptureSession.end_at > now()).order_by(CaptureSession.start_at)
-    with SessionLocal() as db:
-        sessions = db.scalars(query).all()
-        active = sessions[0] if sessions and sessions[0].start_at <= now() else None
-        return jsonify({
-            "active": capture_session_json(active) if active else None,
-            "upcoming": [capture_session_json(s) for s in sessions if s is not active],
-        })
-
-
-@app.post("/api/capture-sessions")
-def create_capture_session():
-    """Book a session. {"end_at": "2026-11-03T23:00"} starts now; add "start_at" to schedule one later.
-    Times without a timezone are observatory time. 409 if another session is in the way.
-    """
-    # TODO(auth): require a logged-in user and pass their id as created_by
-    data = request.get_json(silent=True)
-    if not isinstance(data, dict) or not data.get("end_at"):
-        return jsonify({"error": 'send JSON like {"end_at": "2026-11-03T23:00"}'}), 400
-    try:
-        end_at = parse_time(data["end_at"])
-        start_at = parse_time(data["start_at"]) if data.get("start_at") else None
-    except (TypeError, ValueError):
-        return jsonify({"error": "times must look like 2026-11-03T21:00"}), 400
-
-    with SessionLocal() as db:
-        try:
-            booked = book_session(db, end_at, start_at)
-        except SessionConflict as e:
-            return jsonify({"error": str(e), "conflict": capture_session_json(e.session)}), 409
-        except ValueError as e:
-            return jsonify({"error": str(e)}), 400
-        return jsonify(capture_session_json(booked)), 201
 
 
 @app.errorhandler(404)

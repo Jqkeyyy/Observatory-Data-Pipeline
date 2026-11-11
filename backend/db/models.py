@@ -63,6 +63,7 @@ class SessionJob(Base):
     device_id: Mapped[str] = mapped_column(index=True)
     duration_seconds: Mapped[int]
     interval_seconds: Mapped[int]
+    scheduled_for: Mapped[datetime | None] = mapped_column(index=True)
     status: Mapped[str] = mapped_column(default="pending", server_default="pending", index=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     started_at: Mapped[datetime | None]
@@ -74,6 +75,7 @@ class SessionJob(Base):
             "device_id": self.device_id,
             "duration_seconds": self.duration_seconds,
             "interval_seconds": self.interval_seconds,
+            "scheduled_for": self.scheduled_for.isoformat() if self.scheduled_for else None,
             "status": self.status,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "started_at": self.started_at.isoformat() if self.started_at else None,

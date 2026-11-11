@@ -6,4 +6,4 @@ venv/
 .DS_Store
 .vscode/
 .idea/
-backend/data
+backend/scripts/generate_test_data.py
