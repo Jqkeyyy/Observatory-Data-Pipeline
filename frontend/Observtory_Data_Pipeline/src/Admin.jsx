@@ -11,10 +11,29 @@ const users = [
   { id: 3, email: 'nine@uww.edu', role: 'admin' },
 ]
 
+const queueTabs = ['Upcoming', 'Current', 'Done']
+
 // no handlers
 function Admin() {
   const [start, setStart] = useState('')
   const [pictureUnit, setPictureUnit] = useState('minute')
+  const [queueTab, setQueueTab] = useState('Upcoming')
+
+  function submitJob(e) {
+    e.preventDefault()
+    const form = new FormData(e.target)
+    const [startDate, startTime] = form.get('start').split('T')
+    const [endDate, endTime] = form.get('end').split('T')
+    const job = {
+      startDate,
+      startTime,
+      endDate,
+      endTime,
+      pictures: Number(form.get('pictures')),
+      frequency: form.get('frequency'), // 'minute' or 'hour'
+    }
+    console.log(job) // this is where you'll want to send to serv
+  }
 
   return (
     <>
@@ -23,28 +42,30 @@ function Admin() {
         <a href="/">Back to archive</a>
       </header>
 
+      <div className="admin-columns">
+      <div>
       <section className="admin-section">
         <h2>Session settings</h2>
-        <form className="settings" onSubmit={(e) => e.preventDefault()}>
+        <form className="settings" onSubmit={submitJob}>
           <label>
             Start
-            <input type="datetime-local" required onChange={(e) => setStart(e.target.value)} />
+            <input name="start" type="datetime-local" required onChange={(e) => setStart(e.target.value)} />
           </label>
           <label>
             End
-            <input type="datetime-local" required min={start} />
+            <input name="end" type="datetime-local" required min={start} />
           </label>
           <label>
             Pictures
             <span className="field">
-              <input type="number" min="0" max={maxPictures[pictureUnit]} required defaultValue="1" />
-              <select value={pictureUnit} onChange={(e) => setPictureUnit(e.target.value)}>
+              <input name="pictures" type="number" min="0" max={maxPictures[pictureUnit]} required defaultValue="1" />
+              <select name="frequency" value={pictureUnit} onChange={(e) => setPictureUnit(e.target.value)}>
                 <option value="hour">per hour</option>
                 <option value="minute">per minute</option>
               </select>
             </span>
           </label>
-          <button type="submit">Save settings</button>
+          <button type="submit">Submit Job</button>
         </form>
       </section>
 
@@ -76,6 +97,27 @@ function Admin() {
           </tbody>
         </table>
       </section>
+      </div>
+
+      <section className="admin-section queue">
+        <h2>Queue</h2>
+        <div className="queue-tabs" role="tablist">
+          {queueTabs.map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              role="tab"
+              aria-selected={queueTab === tab}
+              onClick={() => setQueueTab(tab)}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+        {/* Empty for now */}
+        <div className="queue-list" role="tabpanel" aria-label={queueTab}></div>
+      </section>
+      </div>
     </>
   )
 }

@@ -32,6 +32,42 @@
   margin-top: 24px;
 }
 
+.admin-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .admin-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.queue-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+#admin .queue-tabs button {
+  flex: 1;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  color: inherit;
+
+  &[aria-selected='true'] {
+    border-bottom-color: var(--accent);
+    color: var(--text-h);
+  }
+}
+
+.queue-list {
+  min-height: 240px;
+}
+
 #admin input,
 #admin select,
 #admin button {
