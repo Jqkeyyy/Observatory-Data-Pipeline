@@ -10,7 +10,8 @@ from flask import Flask, abort, jsonify, request, send_from_directory
 from flask_cors import CORS
 from sqlalchemy import func, select, text
 
-from db.models import Image, ObservingSession, Target
+from db.capture import SessionConflict, book_session, now, parse_time
+from db.models import CaptureSession, Image, ObservingSession, Target
 from db.session import SessionLocal
 
 DATA_DIR = Path(__file__).resolve().parent / "data"  # where image files live
@@ -32,6 +33,15 @@ def image_json(img):
         "exposure_s": img.exposure_s,
         "sharpness": img.sharpness,
         "tags": img.tags,
+    }
+
+
+def capture_session_json(s):
+    return {
+        "id": s.id,
+        "start_at": s.start_at.isoformat(),
+        "end_at": s.end_at.isoformat(),
+        "created_by": s.created_by_user.name if s.created_by_user else None,
     }
 
 
@@ -138,6 +148,44 @@ def list_sessions():
     )
     with SessionLocal() as db:
         return jsonify([{"night_of": n.isoformat(), "image_count": c} for n, c in db.execute(query)])
+
+
+@app.get("/api/capture-sessions")
+def list_capture_sessions():
+    """The session happening now (or null) and the ones booked after it, soonest first."""
+    query = select(CaptureSession).where(CaptureSession.end_at > now()).order_by(CaptureSession.start_at)
+    with SessionLocal() as db:
+        sessions = db.scalars(query).all()
+        active = sessions[0] if sessions and sessions[0].start_at <= now() else None
+        return jsonify({
+            "active": capture_session_json(active) if active else None,
+            "upcoming": [capture_session_json(s) for s in sessions if s is not active],
+        })
+
+
+@app.post("/api/capture-sessions")
+def create_capture_session():
+    """Book a session. {"end_at": "2026-11-03T23:00"} starts now; add "start_at" to schedule one later.
+    Times without a timezone are observatory time. 409 if another session is in the way.
+    """
+    # TODO(auth): require a logged-in user and pass their id as created_by
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict) or not data.get("end_at"):
+        return jsonify({"error": 'send JSON like {"end_at": "2026-11-03T23:00"}'}), 400
+    try:
+        end_at = parse_time(data["end_at"])
+        start_at = parse_time(data["start_at"]) if data.get("start_at") else None
+    except (TypeError, ValueError):
+        return jsonify({"error": "times must look like 2026-11-03T21:00"}), 400
+
+    with SessionLocal() as db:
+        try:
+            booked = book_session(db, end_at, start_at)
+        except SessionConflict as e:
+            return jsonify({"error": str(e), "conflict": capture_session_json(e.session)}), 409
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+        return jsonify(capture_session_json(booked)), 201
 
 
 @app.errorhandler(404)

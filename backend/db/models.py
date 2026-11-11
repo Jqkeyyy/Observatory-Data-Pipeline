@@ -1,8 +1,8 @@
 from datetime import date, datetime
 
-from sqlalchemy import BigInteger, ForeignKey, Index, Text, func
+from sqlalchemy import BigInteger, CheckConstraint, ForeignKey, Index, Text, func, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, ExcludeConstraint
 
 from db.base import Base
 
@@ -52,3 +52,62 @@ class Image(Base):
 
     session: Mapped[ObservingSession] = relationship(back_populates="images")
     target: Mapped[Target | None] = relationship(back_populates="images")
+
+
+class User(Base):
+    """role "user" = student: can tag images and book capture sessions.
+    role "admin" = professor: can also change the capture interval, edit or end any session, and manage users."""
+
+    __tablename__ = "users"  # "user" is a reserved word in Postgres
+    __table_args__ = (
+        CheckConstraint("role IN ('admin', 'user')", name="ck_users_role"),
+        CheckConstraint("email = lower(email)", name="ck_users_email_lowercase"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[str] = mapped_column(unique=True)
+    name: Mapped[str]
+    password_hash: Mapped[str]
+    role: Mapped[str] = mapped_column(default="user", server_default="user")
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
+class CaptureSession(Base):
+    """A time window when the Pi takes pictures. Anyone logged in can book one.
+    Not the same as ObservingSession, which groups the finished pictures by night."""
+
+    __tablename__ = "capture_session"
+    __table_args__ = (
+        CheckConstraint("end_at > start_at", name="ck_capture_session_end_after_start"),
+        # Postgres itself refuses two sessions whose times overlap, even if two people click at once
+        ExcludeConstraint(
+            (text("tstzrange(start_at, end_at)"), "&&"),
+            name="ex_capture_session_no_overlap",
+            using="gist",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    start_at: Mapped[datetime] = mapped_column(index=True)
+    end_at: Mapped[datetime]
+    created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+    created_by_user: Mapped[User | None] = relationship()
+
+
+class CaptureSettings(Base):
+    """Always exactly one row (id = 1). Admins change it; the capture script reads it."""
+
+    __tablename__ = "capture_settings"
+    __table_args__ = (
+        CheckConstraint("id = 1", name="ck_capture_settings_one_row"),
+        CheckConstraint("interval_s >= 30", name="ck_capture_settings_interval"),  # Dr. Nine: max ~2 per minute
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=False, default=1)
+    interval_s: Mapped[int] = mapped_column(server_default="60")  # seconds between pictures
+    updated_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
+
+    updated_by_user: Mapped[User | None] = relationship()
