@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import './Search.css'
+import logoImg from './assets/observatoryLogo.png'
 
 // Don't touch until we get auth working here, if you want to see it as an admin add ?admin after the search.html, admin panel is found at admin.html
 const isAdmin = new URLSearchParams(location.search).has('admin')

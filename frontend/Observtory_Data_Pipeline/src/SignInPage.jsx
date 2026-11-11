@@ -1,4 +1,5 @@
 import "./SignInPage.css"
+import logoImg from './assets/observatoryLogo.png'
 
 function SignInPage() {
   return (
@@ -16,7 +17,7 @@ function SignInPage() {
           <a id="signUp" href="/signup.html">Sign Up</a>
         </div>
       </nav>
-
+      {/* Block for sign in page. */}
       <div className="signin-page">
         <div className="signin-card">
 

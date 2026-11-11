@@ -1,5 +1,5 @@
-
-import heroImg from './assets/logoMain.jpg'
+import logoImg from './assets/observatorylogotemp.png'
+import heroImg from './assets/logo_navy_bg_white_text.png'
 import './App.css'
 {/*import Login from './Login.jsx'*/}
 function App() {
@@ -9,13 +9,14 @@ function App() {
       {/*Navigation bar that will sit at the top of every page to navigate from page to page. */}
       <nav className="navbar">
         <div className="nav-logo">
+          <img src={logoImg} className="nav-logo-img" alt="UWW Observatory logo" />
           Whitewater Observatory
         </div>
 
         <div className="nav-links">
           <a id="Home" href="/">Home</a>
           <a id="Search" href="/search.html">Search</a>
-          <a id="signinpage" href="/signin.html">Sign In</a>
+          <a id="signIn" href="/signin.html">Sign In</a>
           <a id="signUp" href="/signup.html">Sign Up</a>
         </div>
       </nav>
