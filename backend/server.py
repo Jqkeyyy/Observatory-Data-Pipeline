@@ -6,10 +6,11 @@ Run from backend\\:  python server.py   ->  http://127.0.0.1:5000
 from datetime import date
 from pathlib import Path
 
-from flask import Flask, abort, jsonify, request, send_from_directory
+from flask import Flask, abort, g, jsonify, request, send_from_directory
 from flask_cors import CORS
 from sqlalchemy import func, select, text
 
+from auth import init_auth, login_required
 from db.capture import SessionConflict, book_session, now, parse_time
 from db.models import CaptureSession, Image, ObservingSession, Target
 from db.session import SessionLocal
@@ -19,6 +20,7 @@ EDITABLE_IMAGE_FIELDS = {"target", "exposure_s", "sharpness", "tags"}
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:5173"])  # Vite dev server
+init_auth(app)  # Google sign-in + /api/auth/* and /api/users routes (see auth.py)
 
 
 def image_json(img):
@@ -98,8 +100,9 @@ def list_tags():
     
 
 @app.route("/api/images/<int:image_id>", methods=["PATCH", "PUT"])
+@login_required
 def update_image(image_id):
-    """Change an image's details. Send only what you want to change, e.g. {"target": "Moon"}
+    """Change an image's details (must be signed in). Send only what you want to change, e.g. {"target": "Moon"}
     target: an existing target name, or null to clear it.  exposure_s / sharpness: a number or null.
     """
     data = request.get_json(silent=True)
@@ -164,11 +167,11 @@ def list_capture_sessions():
 
 
 @app.post("/api/capture-sessions")
+@login_required
 def create_capture_session():
     """Book a session. {"end_at": "2026-11-03T23:00"} starts now; add "start_at" to schedule one later.
     Times without a timezone are observatory time. 409 if another session is in the way.
     """
-    # TODO(auth): require a logged-in user and pass their id as created_by
     data = request.get_json(silent=True)
     if not isinstance(data, dict) or not data.get("end_at"):
         return jsonify({"error": 'send JSON like {"end_at": "2026-11-03T23:00"}'}), 400
@@ -180,7 +183,7 @@ def create_capture_session():
 
     with SessionLocal() as db:
         try:
-            booked = book_session(db, end_at, start_at)
+            booked = book_session(db, end_at, start_at, created_by=g.user.id)
         except SessionConflict as e:
             return jsonify({"error": str(e), "conflict": capture_session_json(e.session)}), 409
         except ValueError as e:

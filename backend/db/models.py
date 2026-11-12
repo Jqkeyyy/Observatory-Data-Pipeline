@@ -67,9 +67,12 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(unique=True)
     name: Mapped[str]
-    password_hash: Mapped[str]
+    password_hash: Mapped[str | None]  # only for accounts made with scripts/create_user.py; Google sign-in has no password
+    google_sub: Mapped[str | None] = mapped_column(unique=True)  # Google's permanent ID for this person; set on first Google sign-in
+    picture_url: Mapped[str | None]
     role: Mapped[str] = mapped_column(default="user", server_default="user")
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    last_login_at: Mapped[datetime | None]
 
 
 class CaptureSession(Base):
