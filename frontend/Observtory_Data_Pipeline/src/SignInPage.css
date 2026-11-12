@@ -179,3 +179,36 @@ body
   text-decoration: underline;
 }
  
+/* Google sign-in */
+
+.google-button
+{
+  display: block;
+  margin-top: 10px;
+  padding: .75rem 1.75rem;
+  border-radius: 999px;
+  border: 1px solid #747775;
+  background-color: white;
+  color: #1f1f1f;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.google-button:hover
+{
+  transform: scale(1.05);
+}
+
+.signin-error
+{
+  margin: 0;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  background-color: rgba(248, 113, 113, 0.12);
+  color: #fecaca;
+  text-align: center;
+}

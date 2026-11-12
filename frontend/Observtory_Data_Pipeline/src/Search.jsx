@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import './Search.css'
+import AuthLinks from './AuthLinks.jsx'
 
 // Don't touch until we get auth working here, if you want to see it as an admin add ?admin after the search.html, admin panel is found at admin.html
 const isAdmin = new URLSearchParams(location.search).has('admin')
@@ -36,8 +37,7 @@ function Search() {
         <div className="nav-links">
           <a href="/">Home</a>
           <a href="/search.html">Search</a>
-          <a href="/signin.html">Sign In</a>
-          <a href="/signup.html">Sign Up</a>
+          <AuthLinks />
         </div>
       </nav>
       
