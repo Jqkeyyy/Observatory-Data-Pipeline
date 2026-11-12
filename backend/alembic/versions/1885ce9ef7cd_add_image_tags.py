@@ -1,7 +1,7 @@
 """add image tags
 
 Revision ID: 1885ce9ef7cd
-Revises: 1b893fce75db
+Revises: 2cdecbb237df
 Create Date: 2026-10-21 10:51:17.033285
 
 """
