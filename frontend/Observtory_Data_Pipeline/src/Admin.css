@@ -1,31 +1,39 @@
-#admin {
+/* Same nav bar as the home page (App.css) */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: left;
+  padding: 2vh 4vw;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.nav-logo {
+  font-size: 1.4rem;
+  color: white;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2vw;
+}
+
+.nav-links a {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.25s;
+}
+
+.admin-content {
   max-width: 1126px;
   margin: 0 auto;
   padding: 0 16px 32px;
   box-sizing: border-box;
 }
 
-.admin-bar {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  margin: 0 -16px;
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--code-bg);
-  border-bottom: 1px solid var(--border);
-  box-shadow: var(--shadow);
-
-  h1 {
-    font-size: 24px;
-    margin: 0;
-  }
-
-  a {
-    color: var(--accent);
-  }
+.admin-title {
+  font-size: 2rem;
+  margin: 32px 0 0;
 }
 
 .admin-section {
@@ -142,4 +150,37 @@
 
 .row-actions {
   text-align: right;
+}
+
+.admin-note {
+  margin: 8px 0 16px;
+}
+
+.admin-link {
+  color: var(--accent);
+}
+
+.admin-error {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(192, 57, 43, 0.6);
+  background: rgba(192, 57, 43, 0.15);
+  color: var(--text-h);
+}
+
+#admin select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.user-tag {
+  display: block;
+  font-size: 12px;
+  color: var(--accent);
+}
+
+#admin button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
