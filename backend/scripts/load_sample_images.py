@@ -102,11 +102,11 @@ def load():
 
         added = 0
         for night, night_files in sessions_map.items():
-            session_id = abs(hash(night.isoformat())) % 100000
-
+            # Let Postgres number the nights. Files are in time order, so an empty database
+            # gives the same session IDs (and zip names) on every computer.
             observing_session = db.scalar(select(ObservingSession).where(ObservingSession.night_of == night))
             if not observing_session:
-                observing_session = ObservingSession(id=session_id, night_of=night)
+                observing_session = ObservingSession(night_of=night)
                 db.add(observing_session)
                 db.flush()
 

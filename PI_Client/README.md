@@ -2,6 +2,14 @@ This script is ran via systemd. By doing this the script client.py will run auto
 
 Here are the steps I used to configure the script:
 
+### 0. Copy the files and install what it needs:
+
+Copy `client.py` and the `scripts/` folder to `/home/pi/observatory/`, then:
+
+```
+pip install requests pillow
+```
+
 
 ### 1. Create the service file:
 
@@ -19,6 +27,7 @@ After=network.target
 
 [Service]
 ExecStart=/usr/bin/python3 /home/pi/observatory/client.py
+Environment=OBSERVATORY_SERVER=http://<server ip>:5000
 Restart=always
 User=pi
 

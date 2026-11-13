@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 from sqlalchemy import BigInteger, CheckConstraint, ForeignKey, Index, Text, func, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import ARRAY, ExcludeConstraint
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from db.base import Base
 
@@ -54,9 +54,17 @@ class Image(Base):
     target: Mapped[Target | None] = relationship(back_populates="images")
 
 class SessionJob(Base):
+    """One capture job for the Pi: a picture every interval_seconds for duration_seconds,
+    starting at scheduled_for (or as soon as the Pi picks it up, if that's empty).
+    Not the same as ObservingSession, which groups the finished pictures by night."""
+
     __tablename__ = "session_job"
     __table_args__ = (
-        Index("ix_session_job_pending", "device_id", "created_at", postgresql_where=(func.lower("status") == "pending")),
+        CheckConstraint("duration_seconds > 0", name="ck_session_job_duration"),
+        CheckConstraint("interval_seconds >= 30", name="ck_session_job_interval"),  # Dr. Nine: max ~2 per minute
+        CheckConstraint("status IN ('pending', 'running', 'completed', 'error')", name="ck_session_job_status"),
+        # What the Pi looks up on every poll
+        Index("ix_session_job_pending", "device_id", "created_at", postgresql_where=text("status = 'pending'")),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)

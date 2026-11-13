@@ -4,33 +4,31 @@ Run from backend\\:  python server.py   ->  http://127.0.0.1:5000
 """
 
 import io
+import mimetypes
 import zipfile
+from datetime import date
 from pathlib import Path
 
 from flask import Flask, abort, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from sqlalchemy import func, select, text
-from routes.sessions import sessions_bp
 
 from db.models import Image, ObservingSession, Target
 from db.session import SessionLocal
+from routes.sessions import SESSIONS_DIR, THUMBNAILS_DIR, sessions_bp
 
-
-DATA_DIR = Path(__file__).resolve().parent / "data"
 EDITABLE_IMAGE_FIELDS = {"target", "exposure_s", "sharpness", "tags"}
-SESSIONS_DIR = DATA_DIR / "sessions"
-THUMBNAILS_DIR = DATA_DIR / "thumbnails"
-SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
-THUMBNAILS_DIR.mkdir(parents=True, exist_ok=True)
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173"])
+CORS(app, origins=["http://localhost:5173"])  # Vite dev server
 app.register_blueprint(sessions_bp)
+
 
 def image_json(img):
     return {
         "id": img.id,
-        "url": f"/api/images/{img.id}/thumbnail",
+        # use "url" as <img src>; falls back to the full picture if there's no preview yet
+        "url": f"/api/images/{img.id}/thumbnail" if img.preview_path else f"/api/images/{img.id}/original",
         "original_url": f"/api/images/{img.id}/original",
         "target": img.target.name if img.target else None,
         "night_of": img.session.night_of.isoformat(),
@@ -51,24 +49,27 @@ def health():
     return jsonify({"status": "ok"})
 
 
+@app.get("/api/images")
 @app.get("/api/images/thumbnails")
-def list_thumbnails():
-    """Lists all images from the database with both thumbnail and original URLs."""
+def list_images():
+    """All images, newest first, with thumbnail and original URLs.
+    Optional: ?target=Moon  ?night=2026-10-12  ?tag=clouds  ?limit=50"""
+    query = select(Image).join(Image.session).order_by(Image.captured_at.desc())
+    if target := request.args.get("target"):
+        query = query.join(Image.target).where(Target.name.ilike(target))
+    if night := request.args.get("night"):
+        try:
+            query = query.where(ObservingSession.night_of == date.fromisoformat(night))
+        except ValueError:
+            return jsonify({"error": "night must look like 2026-10-12"}), 400
+    if tag := request.args.get("tag"):
+        query = query.where(Image.tags.contains([tag.strip().lower()]))
+
+    query = query.limit(min(request.args.get("limit", 100, type=int), 500))
+
     with SessionLocal() as db:
-        images = db.scalars(select(Image).order_by(Image.captured_at.desc())).all()
-        results = []
-        for img in images:
-            if not img.preview_path:
-                continue
-            results.append({
-                "id": img.id,
-                "filename": img.preview_path,
-                "url": f"/api/images/{img.id}/thumbnail",
-                "original_url": f"/api/images/{img.id}/original",
-                "target": img.target.name if img.target else "Unknown",
-                "night_of": img.session.night_of.isoformat() if img.session else None
-            })
-        return jsonify(results), 200
+        return jsonify([image_json(img) for img in db.scalars(query)])
+
 
 @app.get("/api/images/<int:image_id>/thumbnail")
 def get_image_thumbnail(image_id):
@@ -77,9 +78,10 @@ def get_image_thumbnail(image_id):
         img = db.get(Image, image_id) or abort(404)
         if not img.preview_path:
             abort(404)
-            
+
         filename = Path(img.preview_path).name
         return send_from_directory(THUMBNAILS_DIR, filename)
+
 
 @app.get("/api/thumbnails/<path:filename>")
 def serve_thumbnail(filename):
@@ -90,29 +92,25 @@ def serve_thumbnail(filename):
 
 
 @app.get("/api/images/<int:image_id>/original")
+@app.get("/api/images/<int:image_id>/file")
 def get_image_original(image_id):
     """Extracts and streams the full 4K frame from the session zip on-demand when user full-screens."""
     with SessionLocal() as db:
         img = db.get(Image, image_id) or abort(404)
-        
         zip_path = SESSIONS_DIR / f"session_{img.session_id}.zip"
-        if not zip_path.exists():
-            abort(404)
-            
         inner_filename = Path(img.file_path).name
-        
-        try:
-            with zipfile.ZipFile(zip_path, 'r') as zf:
-                if inner_filename not in zf.namelist():
-                    abort(404)
-                file_data = zf.read(inner_filename)
-                return send_file(
-                    io.BytesIO(file_data),
-                    mimetype="image/jpeg",
-                    download_name=inner_filename
-                )
-        except Exception:
-            abort(500)
+
+    try:
+        with zipfile.ZipFile(zip_path) as zf:
+            file_data = zf.read(inner_filename)
+    except (FileNotFoundError, KeyError):  # no zip for that night, or the picture isn't in it
+        abort(404)
+
+    return send_file(
+        io.BytesIO(file_data),
+        mimetype=mimetypes.guess_type(inner_filename)[0] or "application/octet-stream",
+        download_name=inner_filename,
+    )
 
 
 @app.get("/api/images/<int:image_id>")
@@ -121,12 +119,6 @@ def get_image(image_id):
         img = db.get(Image, image_id) or abort(404)
         return jsonify(image_json(img))
 
-@app.get("/api/images/<int:image_id>/file")
-def get_image_file(image_id):
-    """The picture itself."""
-    with SessionLocal() as db:
-        img = db.get(Image, image_id) or abort(404)
-        return send_from_directory(DATA_DIR, img.file_path)
 
 
 @app.get("/api/tags")

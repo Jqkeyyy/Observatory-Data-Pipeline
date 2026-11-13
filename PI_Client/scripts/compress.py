@@ -1,42 +1,31 @@
-from pathlib import Path
-from PIL import Image
+""" Generate image thumbnails and compress a finished job locally on the Pi """
+
 import zipfile
-import requests
+from pathlib import Path
 
-""" Generate image thumbnails and compress session locally """
+from PIL import Image
 
-SERVER_URL = "http://your-server-ip:5000/api/sessions/upload"
+THUMB_SIZE = (960, 540)
 
-def process_and_upload_session(session_id: int, local_session_dir: Path):
+
+def package_session(job_id: int, local_session_dir: Path):
+    """Zip every picture in local_session_dir and make a 960x540 thumbnail of each.
+    Returns (zip path, [thumbnail paths]). Thumbnails are named thumb_<picture name>,
+    which is how the server matches them to their pictures."""
     thumbnails_dir = local_session_dir / "thumbnails"
     thumbnails_dir.mkdir(exist_ok=True)
-    
-    zip_path = local_session_dir.parent / f"session_{session_id}.zip"
-    
+
+    zip_path = local_session_dir.parent / f"job_{job_id}.zip"
     thumbnail_files = []
-    
-    # Compress raw images into a zip and generate thumbnails locally
-    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
-        for img_path in local_session_dir.glob("*.jpg"):
-            # zip 
+
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for img_path in sorted(local_session_dir.glob("*.jpg")):
             zf.write(img_path, arcname=img_path.name)
-            
-            # 960x540 thumbnail 
+
             with Image.open(img_path) as img:
-                img_thumb = img.resize((960, 540), Image.Resampling.LANCZOS)
+                img.thumbnail(THUMB_SIZE)  # keeps the shape of the picture, unlike resize()
                 thumb_path = thumbnails_dir / f"thumb_{img_path.name}"
-                img_thumb.save(thumb_path, "JPEG", quality=85)
+                img.save(thumb_path, "JPEG", quality=85)
                 thumbnail_files.append(thumb_path)
 
-    #  Upload thumbnails & session zip one HTTP request
-    files = {"archive": open(zip_path, "rb")}
-    for t_path in thumbnail_files:
-        files.add(("thumbnails", open(t_path, "rb")))
-        
-    data = {"session_id": session_id}
-    response = requests.post(SERVER_URL, data=data, files=files)
-    
-    if response.status_code == 201:
-        print("Upload successful! Clearing local Pi staging directory...")
-        for img_path in local_session_dir.glob("*.jpg"):
-            img_path.unlink()
+    return zip_path, thumbnail_files

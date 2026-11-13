@@ -4,7 +4,8 @@ export default function ScheduleSession({ isOpen, onClose, onSuccess }) {
   const [durationValue, setDurationValue] = useState(300)
   const [durationUnit, setDurationUnit] = useState('seconds')
   
-  const [intervalValue, setIntervalValue] = useState(15)
+  // Dr. Nine: no more than 2 pictures a minute, so at least 30 seconds apart
+  const [intervalValue, setIntervalValue] = useState(60)
   const [intervalUnit, setIntervalUnit] = useState('seconds')
 
   const [scheduledFor, setScheduledFor] = useState('')
@@ -23,6 +24,10 @@ export default function ScheduleSession({ isOpen, onClose, onSuccess }) {
     // Convert interval to seconds
     let intervalMultiplier = intervalUnit === 'minutes' ? 60 : intervalUnit === 'hours' ? 3600 : 1
     const totalIntervalSeconds = parseInt(intervalValue, 10) * intervalMultiplier
+    if (totalIntervalSeconds < 30) {
+      setErrorMsg('Pictures must be at least 30 seconds apart (2 per minute at most).')
+      return
+    }
 
     // Convert local datetime input to UTC ISO string
     let scheduledIso = null
@@ -89,7 +94,7 @@ export default function ScheduleSession({ isOpen, onClose, onSuccess }) {
             <span className="field">
               <input 
                 type="number" 
-                min="1" 
+                min={intervalUnit === 'seconds' ? 30 : 1}
                 value={intervalValue} 
                 onChange={(e) => setIntervalValue(e.target.value)} 
                 required

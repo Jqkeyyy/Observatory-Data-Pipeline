@@ -154,6 +154,17 @@
 .status-badge.running { background: rgba(241, 196, 15, 0.15); color: #f1c40f; }
 .status-badge.pending { background: rgba(52, 152, 219, 0.15); color: #3498db; }
 .status-badge.completed { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+.status-badge.error { background: rgba(231, 76, 60, 0.15); color: #e74c3c; }
+
+.success-msg {
+  color: #2ecc71;
+  font-weight: 600;
+}
+
+.queue-empty {
+  text-align: center;
+  padding: 16px;
+}
 
 
 /* Modal Overlay & Login-Card Styling */
