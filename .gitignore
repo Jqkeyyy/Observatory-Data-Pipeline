@@ -6,4 +6,7 @@ venv/
 .DS_Store
 .vscode/
 .idea/
-backend/data
+# Pictures, zips and thumbnails the server makes or receives. Only the sample pictures are kept in git.
+backend/data/*
+!backend/data/images/
+backend/scripts/generate_test_data.py
