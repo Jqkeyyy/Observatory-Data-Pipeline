@@ -13,6 +13,7 @@ from flask import Flask, abort, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from sqlalchemy import func, select, text
 
+from auth import init_auth, login_required
 from db.models import Image, ObservingSession, Target
 from db.session import SessionLocal
 from routes.sessions import SESSIONS_DIR, THUMBNAILS_DIR, sessions_bp
@@ -21,6 +22,7 @@ EDITABLE_IMAGE_FIELDS = {"target", "exposure_s", "sharpness", "tags"}
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:5173"])  # Vite dev server
+init_auth(app)  # Google sign-in + /api/auth/* and /api/users routes (see auth.py)
 app.register_blueprint(sessions_bp)
 
 
@@ -131,8 +133,9 @@ def list_tags():
     
 
 @app.route("/api/images/<int:image_id>", methods=["PATCH", "PUT"])
+@login_required
 def update_image(image_id):
-    """Change an image's details. Send only what you want to change, e.g. {"target": "Moon"}
+    """Change an image's details (must be signed in). Send only what you want to change, e.g. {"target": "Moon"}
     target: an existing target name, or null to clear it.  exposure_s / sharpness: a number or null.
     """
     data = request.get_json(silent=True)

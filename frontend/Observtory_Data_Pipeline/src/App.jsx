@@ -1,6 +1,7 @@
 
 import heroImg from './assets/logoMain.jpg'
 import './App.css'
+import AuthLinks from './AuthLinks.jsx'
 import { useEffect, useRef, useState } from 'react'
 {/*import Login from './Login.jsx'*/}
 function App() {
@@ -26,8 +27,7 @@ function App() {
         <div className="nav-links">
           <a id="Home" href="/">Home</a>
           <a id="Search" href="/search.html">Search</a>
-          <a id="signinpage" href="/signin.html">Sign In</a>
-          <a id="signUp" href="/signup.html">Sign Up</a>
+          <AuthLinks />
         </div>
       </nav>
 
