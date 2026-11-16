@@ -3,9 +3,9 @@ Routes to create, list, and delete session jobs (what the Pi should capture),
 plus the routes the Observatory Pi calls: polling for work, reporting status,
 and uploading the finished pictures.
 
-    Admin page:  POST   /api/sessions/jobs
+    Website:     POST   /api/sessions/jobs              (signed in)
                  GET    /api/sessions/jobs?status=pending
-                 DELETE /api/sessions/jobs/<id>
+                 DELETE /api/sessions/jobs/<id>         (admins)
     Pi:          GET    /api/sessions/jobs/next-pending
                  POST   /api/sessions/jobs/<id>/ack
                  POST   /api/sessions/jobs/upload
@@ -25,6 +25,7 @@ from PIL import UnidentifiedImageError
 from sqlalchemy import func, or_, select, text
 from werkzeug.utils import secure_filename
 
+from auth import admin_required, login_required
 from db.models import Image, ObservingSession, SessionJob
 from db.session import SessionLocal
 
@@ -64,6 +65,7 @@ def job_window(job):
 
 
 @sessions_bp.post("")
+@login_required
 def create_session_job():
     """Create a new pending job from the admin form, refusing ones that overlap another job."""
     data = request.get_json(silent=True) or request.form
@@ -208,6 +210,7 @@ def acknowledge_job(job_id):
 
 
 @sessions_bp.delete("/<int:job_id>")
+@admin_required
 def delete_session_job(job_id):
     """Delete a specific session job by its ID."""
     with SessionLocal() as db:

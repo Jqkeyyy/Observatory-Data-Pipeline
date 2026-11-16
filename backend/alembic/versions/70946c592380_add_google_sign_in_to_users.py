@@ -1,7 +1,7 @@
 """add google sign-in to users
 
 Revision ID: 70946c592380
-Revises: a8bfeab54ce1
+Revises: b3f9c2d71e40
 Create Date: 2026-11-11 14:12:24.407341
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '70946c592380'
-down_revision: Union[str, Sequence[str], None] = 'a8bfeab54ce1'
+down_revision: Union[str, Sequence[str], None] = 'b3f9c2d71e40'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
