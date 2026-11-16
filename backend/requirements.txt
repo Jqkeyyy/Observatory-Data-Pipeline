@@ -11,3 +11,4 @@ alembic>=1.13
 psycopg[binary]>=3.1
 python-dotenv>=1.0
 tzdata
+Pillow>=10.0

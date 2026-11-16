@@ -143,3 +143,122 @@
 .row-actions {
   text-align: right;
 }
+
+.status-badge {
+  text-transform: capitalize;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.status-badge.running { background: rgba(241, 196, 15, 0.15); color: #f1c40f; }
+.status-badge.pending { background: rgba(52, 152, 219, 0.15); color: #3498db; }
+.status-badge.completed { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+.status-badge.error { background: rgba(231, 76, 60, 0.15); color: #e74c3c; }
+
+.success-msg {
+  color: #2ecc71;
+  font-weight: 600;
+}
+
+.queue-empty {
+  text-align: center;
+  padding: 16px;
+}
+
+
+/* Modal Overlay & Login-Card Styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  background: var(--code-bg, #1e1e1e);
+  border: 1px solid var(--border, #333);
+  border-radius: 12px;
+  padding: 24px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+
+  h3 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--text-h, #fff);
+  }
+
+  .close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text, #aaa);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    height: auto;
+  }
+}
+
+.modal-error {
+  background: rgba(231, 76, 60, 0.15);
+  color: #e74c3c;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--text-h, #ddd);
+  }
+
+  .field {
+    display: flex;
+    gap: 8px;
+
+    input, select {
+      flex: 1;
+      width: 100%;
+    }
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+
+  .secondary-btn {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--text, #ccc);
+  }
+}

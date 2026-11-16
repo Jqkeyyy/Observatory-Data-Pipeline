@@ -1,4 +1,5 @@
-"""Load the team's sample images so everyone has the same 50 pictures, times and IDs.
+"""Load the team's sample images into session zip archives, generate web previews, 
+and populate the database.
 
 Run from backend\\ on an empty database:
     python scripts\\load_sample_images.py
@@ -12,10 +13,12 @@ One time only (Jake), to build that folder from the NASA images already in your 
 
 import argparse
 import shutil
+import zipfile
 import sys
 from datetime import date, datetime, time, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
+from PIL import Image as PILImage
 
 BACKEND = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BACKEND))  # so "from db..." works
@@ -25,8 +28,14 @@ from sqlalchemy import func, select  # noqa: E402
 from db.models import Image, ObservingSession, Target  # noqa: E402
 from db.session import SessionLocal  # noqa: E402
 
-SAMPLE_DIR = BACKEND / "sample_data" / "images"
+SAMPLE_DIR = BACKEND / "data" / "images"
 DATA_DIR = BACKEND / "data"
+SESSIONS_DIR = DATA_DIR / "sessions"
+THUMBNAILS_DIR = DATA_DIR / "thumbnails"
+
+SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
+THUMBNAILS_DIR.mkdir(parents=True, exist_ok=True)
+
 TZ = ZoneInfo("America/Chicago")
 TYPES = {"Moon": "moon", "Jupiter": "planet", "Saturn": "planet", "Mars": "planet", "Orion Nebula": "deep sky"}
 
@@ -54,7 +63,7 @@ def create():
         if missing:
             print(f"Skipping {len(missing)} images whose files aren't in {DATA_DIR / 'images'}")
         images = [img for img in images if img not in missing]
-        # Take turns between targets so each night has a mix: Moon, Jupiter, Saturn, ...
+        
         by_target = {}
         for img in images:
             by_target.setdefault(img.target.name if img.target else "Unknown", []).append(img)
@@ -77,48 +86,73 @@ def create():
 
 
 def load():
-    """Add every sample image to the database, oldest first, so IDs match on every computer."""
-    files = sorted(SAMPLE_DIR.glob("*.jpg"))  # names start with the time, so this is time order
+    """Package sample images into nightly session zips, build web previews, and populate DB."""
+    files = sorted(SAMPLE_DIR.glob("*.jpg"))
     if not files:
         sys.exit(f"No images in {SAMPLE_DIR}. Pull the latest main first.")
-    (DATA_DIR / "images").mkdir(parents=True, exist_ok=True)
 
     with SessionLocal() as db:
-        sample_paths = {f"images/{f.name}" for f in files}
-        existing = set(db.scalars(select(Image.file_path)))
-        if existing - sample_paths:
-            sys.exit(RESET_STEPS)
-
-        added = 0
+        # Group files by night to build session archives
+        sessions_map = {}
         for f in files:
-            file_path = f"images/{f.name}"
-            if file_path in existing:
-                if not (DATA_DIR / file_path).exists():
-                    shutil.copy2(f, DATA_DIR / file_path)  # already loaded, but put back a missing file
-                continue
             day, hhmm, target_name, nasa_id = f.stem.split("_", 3)
             captured = datetime.strptime(f"{day} {hhmm}", "%Y-%m-%d %H%M").replace(tzinfo=TZ)
-            night = (captured - timedelta(hours=12)).date()  # after-midnight shots count as the night before
-            target_name = target_name.replace("-", " ")
+            night = (captured - timedelta(hours=12)).date()
+            sessions_map.setdefault(night, []).append((f, captured, target_name.replace("-", " "), nasa_id))
 
-            shutil.copy2(f, DATA_DIR / file_path)
-            target = db.scalar(select(Target).where(Target.name == target_name))
-            session = db.scalar(select(ObservingSession).where(ObservingSession.night_of == night))
-            db.add(Image(
-                session=session or ObservingSession(night_of=night),
-                target=target or Target(name=target_name, type=TYPES.get(target_name)),
-                file_path=file_path,
-                captured_at=captured,
-                width=3840,  # every sample frame is 4K
-                height=2160,
-                file_size_bytes=f.stat().st_size,
-                meta={"source": "sample", "nasa_id": nasa_id},
-            ))
+        added = 0
+        for night, night_files in sessions_map.items():
+            # Let Postgres number the nights. Files are in time order, so an empty database
+            # gives the same session IDs (and zip names) on every computer.
+            observing_session = db.scalar(select(ObservingSession).where(ObservingSession.night_of == night))
+            if not observing_session:
+                observing_session = ObservingSession(night_of=night)
+                db.add(observing_session)
+                db.flush()
+
+            # Create session zip archive in backend/data/sessions/
+            zip_filename = f"session_{observing_session.id}.zip"
+            zip_path = SESSIONS_DIR / zip_filename
+
+            with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+                for f, captured, target_name, nasa_id in night_files:
+                    zf.write(f, arcname=f.name)
+
+                    # Generate web preview thumbnail in backend/data/thumbnails/
+                    thumb_filename = f"thumb_{f.name}"
+                    thumb_path = THUMBNAILS_DIR / thumb_filename
+                    if not thumb_path.exists():
+                        with PILImage.open(f) as pil_img:
+                            pil_img.thumbnail((960, 540))
+                            pil_img.save(thumb_path, "JPEG", quality=85)
+
+                    file_path = f"images/{f.name}"
+                    target = db.scalar(select(Target).where(Target.name == target_name))
+                    
+                    existing_img = db.scalar(
+                        select(Image).where(
+                            Image.session_id == observing_session.id,
+                            Image.file_path == file_path
+                        )
+                    )
+                    if not existing_img:
+                        db.add(Image(
+                            session_id=observing_session.id,
+                            file_path=file_path,
+                            preview_path=thumb_filename,
+                            target=target or Target(name=target_name, type=TYPES.get(target_name)),
+                            captured_at=captured,
+                            width=3840,
+                            height=2160,
+                            file_size_bytes=f.stat().st_size,
+                            meta={"source": "sample", "nasa_id": nasa_id},
+                        ))
+                        added += 1
+
             db.commit()
-            added += 1
 
         total = db.scalar(select(func.count(Image.id)))
-    print(f"Added {added} images ({total} total).")
+    print(f"Added {added} images into session zips and previews ({total} total).")
 
 
 if __name__ == "__main__":

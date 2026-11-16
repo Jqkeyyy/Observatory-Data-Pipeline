@@ -11,10 +11,14 @@ function Search() {
 
   // Get every image from the database (newest first)
   useEffect(() => {
-    fetch('/api/images')
+    fetch('/api/images/thumbnails')
       .then((res) => res.json())
       .then((data) =>
-        setImages(data.map((img) => ({ name: `${img.target} - ${img.night_of}`, url: img.url })))
+        setImages(data.map((img) => ({ 
+          name: `${img.target} ${img.night_of}`, 
+          url: img.url,
+          original_url: img.original_url 
+        })))
       )
       .catch((err) => console.error('Could not load images:', err))
   }, [])
@@ -23,10 +27,9 @@ function Search() {
     setBig(image)
     dialog.current.showModal()
   }
-// Buttons and image open
+
   return (
     <>
-
       {/*Navigation bar that will sit at the top of every page to navigate from page to page. */}
       <nav className="navbar">
         <div className="nav-logo">
@@ -49,24 +52,25 @@ function Search() {
         <input type="time" id="timeframeEnd"/>
         <button type="button">Search</button>
       </div>
+
       <ul className="results">
-        {images.map(({ name, url }) => (
+        {images.map(({ name, url, original_url }) => (
           <li key={url}>
-            <button type="button" onClick={() => open({ name, url })}>
+            <button type="button" onClick={() => open({ name, url, original_url })}>
               <img src={url} alt={name} />
             </button>
           </li>
         ))}
       </ul>
+
       <dialog ref={dialog} onClick={() => dialog.current.close()}>
         {big && (
           <>
-            <a className="download" href={big.url} download onClick={(e) => e.stopPropagation()}>
-              Download
+            <a className="download" href={big.original_url} download onClick={(e) => e.stopPropagation()}>
+              Download Original 4K
             </a>
-            <img src={big.url} alt={big.name} />
+            <img src={big.original_url} alt={big.name} />
             {isAdmin && (
-              // no handlers
               <div className="admin-tools" onClick={(e) => e.stopPropagation()}>
                 <input type="text" placeholder="Add tags (comma separated)" />
                 <button type="button">Add tags</button>
