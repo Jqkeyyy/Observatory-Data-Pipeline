@@ -1,5 +1,3 @@
-/* initalize whole page */
-
 body
 {
   margin: 0;
@@ -13,60 +11,67 @@ body
   flex-direction: column;
   background-color: #14213d;
 }
- 
- 
+
 /* Navbar and accessories*/
  
-.navbar
+.nav-logo 
 {
   display: flex;
-  justify-content: space-between;
-  align-items: left;
-  padding: 2vh 4vw;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  font-family: system-ui, sans-serif;
-}
- 
-.nav-logo
-{
+  align-items: center;
+  gap: 10px;
   font-size: 1.4rem;
   color: white;
 }
- 
-.nav-links
+
+.nav-logo-img
 {
+  height: 45px;
+  width: auto;
+}
+
+.nav-links 
+{
+  align-items: center;
   display: flex;
   gap: 2vw;
 }
- 
-.nav-links a
+
+.nav-links a 
 {
-  color: var(--text, #9ca3af);
+  color: var(--text);
   text-decoration: none;
   font-weight: 500;
   transition: 0.25s;
 }
- 
-#Home:hover
+
+.navbar 
+{
+  display: flex;
+  justify-content: space-between;
+  align-items: left;
+  padding:  2vh 4vw;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+#Home:hover 
 {
   transform: scale(1.1);
 }
- 
-#Search:hover
+
+#Search:hover 
 {
   transform: scale(1.1);
 }
- 
-#signIn:hover
+
+#signIn:hover 
 {
   transform: scale(1.1);
 }
- 
-#signUp:hover
+
+#signUp:hover 
 {
   transform: scale(1.1);
 }
- 
  
 /*sign in box */
  

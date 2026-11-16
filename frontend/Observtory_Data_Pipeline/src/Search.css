@@ -7,29 +7,63 @@
   gap: 16px;
 }
 
-.nav-logo {
+.nav-logo 
+{
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 1.4rem;
   color: white;
 }
 
-.nav-links {
-  display: flex;
-  gap: 30px;
+.nav-logo-img
+{
+  height: 45px;
+  width: auto;
 }
 
-.nav-links a {
+.nav-links 
+{
+  align-items: center;
+  display: flex;
+  gap: 2vw;
+}
+
+.nav-links a 
+{
   color: var(--text);
   text-decoration: none;
   font-weight: 500;
   transition: 0.25s;
 }
 
-.navbar {
+.navbar 
+{
   display: flex;
   justify-content: space-between;
   align-items: left;
-  padding: 20px 40px;
+  padding:  2vh 4vw;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+#Home:hover 
+{
+  transform: scale(1.1);
+}
+
+#Search:hover 
+{
+  transform: scale(1.1);
+}
+
+#signIn:hover 
+{
+  transform: scale(1.1);
+}
+
+#signUp:hover 
+{
+  transform: scale(1.1);
 }
 
 .controls {

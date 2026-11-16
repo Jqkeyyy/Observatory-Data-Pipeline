@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import './Search.css'
 import AuthLinks from './AuthLinks.jsx'
+import logoImg from './assets/observatorylogotemp.png'
+
 
 // Don't touch until we get auth working here, if you want to see it as an admin add ?admin after the search.html, admin panel is found at admin.html
 const isAdmin = new URLSearchParams(location.search).has('admin')
@@ -32,7 +34,7 @@ function Search() {
   return (
     <>
       {/*Navigation bar that will sit at the top of every page to navigate from page to page. */}
-      <nav className="navbar">
+      {/*<nav className="navbar">
         <div className="nav-logo">
           Whitewater Observatory
         </div>
@@ -40,6 +42,19 @@ function Search() {
         <div className="nav-links">
           <a href="/">Home</a>
           <a href="/search.html">Search</a>
+          <AuthLinks />
+        </div>
+      </nav>
+      */}
+      <nav className="navbar">
+        <div className="nav-logo">
+          <img src={logoImg} className="nav-logo-img" alt="UWW Observatory logo" />
+          Whitewater Observatory
+        </div>
+
+        <div className="nav-links">
+          <a id="Home" href="/">Home</a>
+          <a id="Search" href="/search.html">Search</a>
           <AuthLinks />
         </div>
       </nav>

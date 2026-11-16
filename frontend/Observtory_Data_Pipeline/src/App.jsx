@@ -1,5 +1,6 @@
 
 import heroImg from './assets/logoMain.jpg'
+import logoImg from './assets/observatorylogotemp.png'
 import './App.css'
 import AuthLinks from './AuthLinks.jsx'
 import { useEffect, useRef, useState } from 'react'
@@ -21,6 +22,7 @@ function App() {
       {/*Navigation bar that will sit at the top of every page to navigate from page to page. */}
       <nav className="navbar">
         <div className="nav-logo">
+          <img src={logoImg} className="nav-logo-img" alt="UWW Observatory logo" />
           Whitewater Observatory
         </div>
 
