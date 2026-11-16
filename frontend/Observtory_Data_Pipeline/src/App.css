@@ -67,12 +67,22 @@
 
 .nav-logo 
 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 1.4rem;
   color: white;
 }
 
+.nav-logo-img
+{
+  height: 45px;
+  width: auto;
+}
+
 .nav-links 
 {
+  align-items: center;
   display: flex;
   gap: 2vw;
 }
