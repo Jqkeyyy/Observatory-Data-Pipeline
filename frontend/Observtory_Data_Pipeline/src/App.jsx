@@ -1,9 +1,20 @@
 
 import heroImg from './assets/logoMain.jpg'
 import './App.css'
+import { useEffect, useRef, useState } from 'react'
 {/*import Login from './Login.jsx'*/}
 function App() {
 
+  //pull in imges for the carousel
+  const [images, setImages] = useState([])
+  useEffect(() => {
+    fetch('/api/images')
+      .then((res) => res.json())
+      .then((data) =>
+        setImages(data.slice(0, 10).map((img) => ({ name: `${img.target} - ${img.night_of}`, url: img.url })))
+      )
+      .catch((err) => console.error('Could not load images:', err))
+  }, [])
   return (
     <>
       {/*Navigation bar that will sit at the top of every page to navigate from page to page. */}
@@ -48,22 +59,14 @@ function App() {
 
         <div className="carousel">
             <div className="carousel-move"> {/*This is just a placeholder for now */}
-              <img src="/images/SuperMarioGalaxy.jpg" alt="sample 1"></img>
-              <img src="/images/Stars example.jpg" alt="sample 2"></img>
-              <img src="/images/SuperMarioGalaxy.jpg" alt="sample 3"></img>
-              <img src="/images/Stars example.jpg" alt="sample 4"></img>
-              <img src="/images/SuperMarioGalaxy.jpg" alt="sample 5"></img>
-              <img src="/images/Stars example.jpg" alt="sample 6"></img>
-              <img src="/images/SuperMarioGalaxy.jpg" alt="sample 7"></img>
+              {images.map(({name, url}) => (
+                <img key={url} src={url} alt={name} />
+              ))}
             </div>
               <div aria-hidden className="carousel-move">
-                <img src="/images/SuperMarioGalaxy.jpg" alt="sample 1"></img>
-                <img src="/images/Stars example.jpg" alt="sample 2"></img>
-                <img src="/images/SuperMarioGalaxy.jpg" alt="sample 3"></img>
-                <img src="/images/Stars example.jpg" alt="sample 4"></img>
-                <img src="/images/SuperMarioGalaxy.jpg" alt="sample 5"></img>
-                <img src="/images/Stars example.jpg" alt="sample 6"></img>
-                <img src="/images/SuperMarioGalaxy.jpg" alt="sample 7"></img>
+                {images.map(({name, url}) => (
+                <img key={url} src={url} alt={name} />
+              ))}
               </div>
         
        </div>
