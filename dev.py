@@ -52,8 +52,8 @@ def install_deps():
         print("\nCreated virtual environment at backend/venv")
     
     print(f"\n\nUpdating virtual environment at {VENV_DIR}...")
-    run_cmd(f'"{PIP_BIN}" install --upgrade pip')
-    run_cmd(f'"{PIP_BIN}" install -r {BACKEND_DIR / "requirements.txt"}')
+    run_cmd(f'"{PYTHON_BIN}" -m pip install --upgrade pip')
+    run_cmd(f'"{PYTHON_BIN}" -m pip install -r "{BACKEND_DIR / "requirements.txt"}"')
 
 def start():
     print("\n\nStarting Database...")

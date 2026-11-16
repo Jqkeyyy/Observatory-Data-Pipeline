@@ -158,7 +158,8 @@ def callback():
         abort(404)
     try:
         token = oauth.google.authorize_access_token()
-    except OAuthError:  # they hit Cancel, or the link was stale or reused
+    except OAuthError as e:  # they hit Cancel, or the link was stale or reused
+        current_app.logger.warning("Google sign-in failed: %s", e)
         return _login_failed("cancelled")
 
     info = token.get("userinfo") or {}
