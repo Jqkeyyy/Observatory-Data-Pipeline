@@ -33,32 +33,18 @@ function App() {
 
       {/*Center of landing page. Introduces the website and purpose */}
       <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="900" height="402" alt="" />
-        </div>
         <div>
           <h1>Whitewater Observatory Archive</h1>
-          <p>
-            Browse astronomical observations captured by the
-            University of Wisconsin-Whitewater Observatory.
-          </p>
         </div>
-        <button id="searchButton"
-          type="button"
-          className="search"
-          onClick={() => { location.href = '/search.html' }} // Opens search bar
-        >
-          Explore Archive 
-        </button>
+       
         {/* login moving to separate login and signup page
         <Login />*/}
       </section>
 
       <section className="carousel-section">
-        <h2>Recent Observations</h2>
 
         <div className="carousel">
-            <div className="carousel-move"> {/*This is just a placeholder for now */}
+            <div className="carousel-move"> {/*Update with premium images tags*/}
               {images.map(({name, url}) => (
                 <img key={url} src={url} alt={name} />
               ))}
@@ -70,7 +56,16 @@ function App() {
               </div>
         
        </div>
+
+       
       </section>
+       <button id="searchButton"
+          type="button"
+          className="search"
+          onClick={() => { location.href = '/search.html' }} // Opens search bar
+        >
+          Explore Archive 
+        </button>
     </>
   )
 }

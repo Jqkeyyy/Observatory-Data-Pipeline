@@ -127,7 +127,7 @@
   */
   align-items: center;
   gap:20px;
-  padding-top: 50px;
+  padding-top: 30px;
 
   @media (max-width: 1024px) 
   {
@@ -139,6 +139,9 @@
 
 #searchButton 
 {
+  margin-top: 50px;
+  width: 300px;
+  align-self: center;
   font-size: 1.25rem;
   padding: .75rem 1.75rem;
   border-radius: 999px;
@@ -168,31 +171,34 @@
 
 .carousel-section
 {
-  width:100%;
-  margin-top: 60px;
+  width:94%;
+  margin: 0 auto;
+  margin-top: 40px;
   text-align: center;
 }
 .carousel
 {
   display: flex;
   gap:20px;
-  overflow-x: auto;
-  padding: 20px;
+  overflow-x: hidden;
+  padding: 10px;
+
 }
 
 .carousel-move
 {
   display: flex;
-  gap: 20px;
+  gap: 10px;
   align-items: center;
   display: flex;
-  animation: slide 60s infinite linear;
+  animation: slide 80s infinite linear;
 }
 
 .carousel img
 {
-  width: 200px;
-  height: 200px;
+  width: 320px;
+  height: 320px;
+  border-radius: 5px;
 }
 
 @keyframes slide
